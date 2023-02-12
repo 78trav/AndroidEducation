@@ -5,7 +5,7 @@ import kotlin.system.measureTimeMillis
 
 
 data class Person(val name: String, val surname: String) {
-    var age: UInt = 0.toUInt()
+    var age: UByte = 0u
 
     override fun equals(other: Any?): Boolean {
         return other?.let {
@@ -16,15 +16,13 @@ data class Person(val name: String, val surname: String) {
         } ?: false
     }
 
-    override fun hashCode(): Int {
-        return super.hashCode() + age.toInt()
-    }
+    override fun hashCode(): Int = (surname + name).uppercase().hashCode() + age.toInt()
 
     override fun toString(): String {
         return "$surname $name $age years old"
     }
 
-    constructor (name: String, surname: String, age: UInt) : this(name, surname) {
+    constructor (name: String, surname: String, age: UByte) : this(name, surname) {
         this.age = age
     }
 
@@ -32,8 +30,8 @@ data class Person(val name: String, val surname: String) {
 
 fun compare2PersonsByNameSurname(person1: Person, person2: Person): Int
 {
-    val person1key: String = person1.name.uppercase() + person1.surname.uppercase()
-    val person2key: String = person2.name.uppercase() + person2.surname.uppercase()
+    val person1key: String = (person1.name + person1.surname).uppercase()
+    val person2key: String = (person2.name + person2.surname).uppercase()
     return when
     {
         person1key == person2key -> 0
@@ -133,6 +131,13 @@ fun main() {
             this
         }
     val person1a: Person = Person("Sergey", "Petrov", 5u)
+    val person1b: Person = Person("Sergey", "Petrov", 5u)
+
+    println(person1.hashCode())
+    println(person1 == person1b)
+    println(person1a.hashCode())
+    println(person1b.hashCode())
+    println(person1a == person1b)
 
     val person2: Person = with (Person("Sergey", "Ivanov"))
     {
