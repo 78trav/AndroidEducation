@@ -1,9 +1,5 @@
 package com.example.homework_01
 
-import kotlin.system.measureNanoTime
-import kotlin.system.measureTimeMillis
-
-
 data class Person(val name: String, val surname: String) {
     var age: UByte = 0u
 
@@ -16,7 +12,7 @@ data class Person(val name: String, val surname: String) {
         } ?: false
     }
 
-    override fun hashCode(): Int = (surname + name).uppercase().hashCode() + age.toInt()
+    override fun hashCode(): Int = (surname.uppercase().hashCode() * 31 + name.uppercase().hashCode()) + age.toInt()
 
     override fun toString(): String {
         return "$surname $name $age years old"
@@ -52,7 +48,7 @@ fun compare2PersonsByAge(person1: Person, person2: Person): Int
 
 fun MutableList<Person>.sortByMethod(compareFunc: (Person, Person) -> Int, desc: Boolean = false)
 {
-    var f: Boolean = true
+    var f = true
     while (f)
     {
         f = false
@@ -82,12 +78,10 @@ fun MutableList<Person>.sortByNameSurname()
 
 fun List<Person>.sortedByNameSurname(): List<Person>
 {
-    return this.sortedWith(
-        Comparator<Person>
-        {
+    return this.sortedWith {
             p1, p2-> compare2PersonsByNameSurname(p1, p2)
         }
-    )
+
 }
 
 fun List<Person>.sortedByAgeDescending(): List<Person>
@@ -97,7 +91,10 @@ fun List<Person>.sortedByAgeDescending(): List<Person>
 
 fun myHighOrderFun(action: () -> Unit): Long
 {
-    return measureTimeMillis{ action() }
+    val startTime = System.currentTimeMillis()
+    action
+    return System.currentTimeMillis() - startTime
+    //return measureTimeMillis{ action() }
     //return measureNanoTime{ action() }
 }
 
@@ -118,20 +115,19 @@ fun main() {
     val total: Int = myList
         .filter { it % 2 == 0 }
         .slice(10..20)
-        .map { it + 1 }
-        .sum()
+        .sumOf { it + 1 }
 
     println("total: $total")
 
     // exercise 2
 
-    val person1: Person = with (Person("Sergey", "Petrov"))
+    val person1 = with (Person("Sergey", "Petrov"))
         {
             age = 8u
             this
         }
-    val person1a: Person = Person("Sergey", "Petrov", 5u)
-    val person1b: Person = Person("Sergey", "Petrov", 5u)
+    val person1a = Person("Sergey", "Petrov", 5u)
+    val person1b = Person("Sergey", "Petrov", 5u)
 
     println(person1.hashCode())
     println(person1 == person1b)
@@ -139,13 +135,13 @@ fun main() {
     println(person1b.hashCode())
     println(person1a == person1b)
 
-    val person2: Person = with (Person("Sergey", "Ivanov"))
+    val person2 = with (Person("Sergey", "Ivanov"))
     {
         age = 4u
         this
     }
 
-    val person3: Person = Person("Anna", "Sidorova", 2u)
+    val person3 = Person("Anna", "Sidorova", 2u)
 
     println("mutable list")
     val mutablePersonList: MutableList<Person> = mutableListOf(person2, person1, person3, Person("Anonymous", "Anonymous", 0u))
@@ -157,15 +153,17 @@ fun main() {
 
     println("list")
     val personList: List<Person> = listOf(person2, person1, person3, Person("Anonymous", "Anonymous", 0u))
-    println(personList.sortedByAgeDescending())
-    println(personList.sortedByNameSurname())
+    //println(personList.sortedByAgeDescending())
+    println(personList.sortedByDescending { it.age })
+    println(personList.sortedBy { it.name.uppercase() + it.surname.uppercase() })
+    //println(personList.sortedByNameSurname())
 
     //println(person1 == person1a)
 
     // exercise 3
 
-    var duration: Long = myHighOrderFun {
-        println("Функция высшего порядка")
+    val duration: Long = myHighOrderFun {
+        //println("Функция высшего порядка")
         println(personList.sortedByNameSurname())
     }
     println(duration)
